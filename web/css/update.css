@@ -79,7 +79,7 @@ nav ul li a:hover {
 .content.container-fluid {
   padding: 20px;
   max-width: 800px; /* adjust the width as needed */
-  margin: 0 auto;
+  margin: 0 190px;
 }
 
 .profile-basic {
@@ -144,8 +144,8 @@ nav ul li a:hover {
 }
 
 .profile-basic input[type="submit"] {
-    background-color: #4CAF50;
-    color: white;
+    background-color: #31363fc8;
+    color: #fff;
     padding: 10px 20px;
     border: none;
     border-radius: 4px;
@@ -157,11 +157,27 @@ nav ul li a:hover {
     background-color: #45a049;
 }
 
+
+
 /* Responsive Styles */
 @media (max-width: 768px) {
     .main-wrapper {
         flex-direction: column;
         align-items: center;
+    }
+
+
+    nav {
+        width: 100%;
+        height: auto;
+        position: static;
+        box-shadow: none;
+        padding-top: 15px;
+    }
+
+    nav:hover {
+        width: 100%;
+        padding-top: 15px;
     }
 
     .header {
@@ -191,7 +207,7 @@ nav ul li a:hover {
 
 /* Cancel button */
 .cancel-btn {
-    background-color: #f44336;
+    background-color: #b66762;
     color: white;
     padding: 10px 20px;
     border: none;
@@ -202,24 +218,5 @@ nav ul li a:hover {
 }
 
 .cancel-btn:hover {
-    background-color: #e53935;
-}
-
-/* Dedicated Cancel button outside form */
-.cancel-button {
-    text-align: center;
-    margin-top: 20px;
-}
-
-.cancel-button a {
-    background-color: #f44336;
-    color: white;
-    padding: 10px 20px;
-    border-radius: 4px;
-    text-decoration: none;
-    display: inline-block;
-}
-
-.cancel-button a:hover {
-    background-color: #e53935;
+    background-color: #a10300;
 }

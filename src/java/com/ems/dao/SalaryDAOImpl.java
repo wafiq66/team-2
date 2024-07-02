@@ -279,11 +279,11 @@ public class SalaryDAOImpl implements SalaryDAO {
 
     @Override
     public void updateSalary(Salary salary) {
-        String sql = "UPDATE Salary " +
+        String updateSql = "UPDATE Salary " +
                 "SET TOTALHOURSWORKED = ?, SALARYAMOUNT = ? " +
                 "WHERE EMPLOYEEID = ? AND SALARYMONTH = ? AND SALARYYEAR = ?";
 
-        try (PreparedStatement statement = conn.prepareStatement(sql)) {
+        try (PreparedStatement statement = conn.prepareStatement(updateSql)) {
             statement.setInt(1, salary.getTotalHoursWorked());
             statement.setDouble(2, salary.getSalaryAmount());
             statement.setInt(3, salary.getEmployeeID());
@@ -293,15 +293,17 @@ public class SalaryDAOImpl implements SalaryDAO {
             int rowsUpdated = statement.executeUpdate();
 
             if (rowsUpdated == 0) {
-                throw new RuntimeException("No salary record found for update");
+                // No record found for update, insert a new record
+                recordSalary(salary);
+                System.out.println("Salary record not found, new record inserted.");
+            } else {
+                System.out.println("Rows updated: " + rowsUpdated);
             }
-
-            // Optionally, log or print the number of rows updated
-            System.out.println("Rows updated: " + rowsUpdated);
         } catch (SQLException e) {
             e.printStackTrace(); // Replace with logging framework in production
             throw new RuntimeException("Error updating salary: " + e.getMessage(), e);
         }
     }
+
 }
 

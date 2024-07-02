@@ -1,3 +1,4 @@
+/* css/schedule.css */
 
 /* Basic Reset */
 * {
@@ -29,7 +30,6 @@ body {
 
 .page-title-box h2 {
     padding: 20px;
-    margin-left: 30px;
     color: #fff;
     text-align: center;
 }
@@ -120,7 +120,7 @@ nav ul li a:hover {
 }
 
 /* Back Link */
-.back-link {
+.add-emp {
     display: inline-block;
     margin-bottom: 30px;
     color: #5f6364;
@@ -134,13 +134,13 @@ nav ul li a:hover {
     text-decoration: none;
 }
 
-.back-link:hover {
+.add-emp:hover {
     background-color: #31363fc8;
     color: #fff;
 }
 
 /* Schedule Table Container */
-.schedule-table-container {
+.list-container {
     background-color: #fff;
     padding: 20px;
     border-radius: 12px;
@@ -148,15 +148,67 @@ nav ul li a:hover {
     animation: fadeIn 0.5s ease;
 }
 
+
+.submit-button{
+    display: inline-block;
+    margin: 10px;
+    margin-bottom: 15px;
+    color: #5f6364;
+    font-weight: 600;
+    padding: 5px 10px;
+    border-radius: 8px;
+    background-color: #ecf0f1;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s ease, color 0.3s ease;
+    font-size: 1em;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.submit-button:hover {
+    background-color: #31363fc8;
+    color: #fff;
+}
+
+
+
 /* Table */
-table {
+.employeeTable table {
     width: 100%;
     border-collapse: collapse;
 }
 
+.employeeTable-1 table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+
+.details{
+    display: inline-block;
+    margin-bottom: 10px;
+    color: #5f6364;
+    font-weight: 600;
+    padding: 6px 9px;
+    border-radius: 8px;
+    background-color: #ecf0f1;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s ease, color 0.3s ease;
+    text-decoration: none;
+}
+
+.details:hover {
+    background-color: #31363fc8;
+    color: #fff;
+}
+
+h4{
+    margin-bottom: -10px;
+}
+
 table, th, td {
     border: 1px solid #ddd;
-    cursor: auto;
+    margin: 20px;
 }
 
 th, td {
@@ -178,7 +230,7 @@ tr:nth-child(even) {
 tr:hover {
     background-color: #76ABAE;
     color: #fff;
-    cursor: pointer;
+    cursor: auto;
 }
 
 /* Footer */
@@ -200,14 +252,12 @@ footer p {
     margin: 0;
 }
 
-
 /* Responsive Styles */
 @media (max-width: 768px) {
     .main-wrapper {
         flex-direction: column;
     }
 
-    
     footer{
         width: 100%;
         height: auto;

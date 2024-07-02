@@ -204,7 +204,8 @@ footer {
     background: linear-gradient(-45deg, #76ABAE, #31363F);
     color: white;
     text-align: center;
-    padding: 10px 0;
+    font-size: 1em;
+    padding: 5px 0;
     position: fixed;
     width: calc(100% - 250px); /* Adjust according to the sidebar width */
     bottom: 0;

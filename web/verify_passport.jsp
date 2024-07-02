@@ -1,3 +1,4 @@
+<%@page import="javax.servlet.http.HttpSession" %>
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -32,6 +33,7 @@
 		
 		<!-- Main CSS -->
         <link rel="stylesheet" href="assets/css/style.css">
+        <link rel="stylesheet" href="css/verify-passport.css">
 		
 		<!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
 		<!--[if lt IE 9]>
@@ -40,6 +42,7 @@
 		<![endif]-->
     </head>
     <body>
+        
         <section class="container">
             <header> Employee Authentication</header>
             <form action="register_employee.do" class="form" method="post">
@@ -50,8 +53,9 @@
                 <input type="hidden" value="verifyPassportNumber" name="action">
                 <input type="submit" value="Check Passport Number">
             </form>
-            <p>${message}<p>
+            <p>${message}</p>
+            <a href="officer_employee_list.jsp">Back</a>
         </section>
-        <a href="officer_employee_list.jsp">Back</a>
+        
     </body>	
-</html>	
+</html>

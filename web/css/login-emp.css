@@ -138,6 +138,27 @@ input[type="submit"]:hover {
     transform: scale(1.05);
 }
 
+.back-link {
+    width: 200px;
+    padding: 15px;
+    margin: 10px 0;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    cursor: pointer;
+    transition: background 0.3s, box-shadow 0.3s;
+    text-decoration: none; /* Remove underline for anchor elements */
+    display: inline-block; /* Ensure anchor behaves like a button */
+    color: #1e3539;
+}
+
+.back-link:hover {
+    background-color: #31363fc8;
+    color: #fff;
+}
+
 
 /* Responsive Design */
 @media (max-width: 768px) {

@@ -14,6 +14,7 @@
 		<meta name="keywords" content="admin, estimates, bootstrap, business, corporate, creative, management, minimal, modern, accounts, invoice, html5, responsive, CRM, Projects">
         <meta name="author" content="Dreamguys - Bootstrap Admin Template">
         <meta name="robots" content="noindex, nofollow">
+        
         <title>Employee Registration Form</title>
 		
 		<!-- Favicon -->
@@ -38,7 +39,7 @@
 		<link rel="stylesheet" href="assets/plugins/bootstrap-tagsinput/bootstrap-tagsinput.css">
 		
 		<!-- Main CSS -->
-        <link rel="stylesheet" href="assets/css/style.css">
+        <link rel="stylesheet" href="css/emp-register.css">
 		
 		<!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
 		<!--[if lt IE 9]>

@@ -77,6 +77,7 @@ nav ul li a:hover {
 .content {
     flex-grow: 1;
     padding: 20px;
+    margin-left: 250px;
 }
 
 .card-title {
@@ -158,10 +159,51 @@ nav ul li a:hover {
     border-bottom: none;
 }
 
+/* Footer */
+footer {
+    background: linear-gradient(-45deg, #76ABAE, #31363F);
+    color: white;
+    text-align: center;
+    font-size: 1em;
+    padding: 5px 0;
+    position: fixed;
+    width: calc(100% - 250px); /* Adjust according to the sidebar width */
+    bottom: 0;
+    left: 250px; /* Adjust according to the sidebar width */
+}
+
+/* Footer Text */
+footer p {
+    padding-right: 50px;
+    margin: 0;
+}
+
 /* Responsive Styles */
 @media (max-width: 768px) {
     .main-wrapper {
         flex-direction: column;
+    }
+
+
+    footer{
+        width: 100%;
+        height: auto;
+        position: static;
+        box-shadow: none;
+        padding-top: 15px;
+    }
+
+    nav {
+        width: 100%;
+        height: auto;
+        position: static;
+        box-shadow: none;
+        padding-top: 15px;
+    }
+
+    nav:hover {
+        width: 100%;
+        padding-top: 15px;
     }
 
     .header {

@@ -1,0 +1,203 @@
+/* Basic Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Body and Typography */
+body {
+    font-family: 'Roboto', sans-serif;
+    background: linear-gradient(135deg, #f4f4f4, #e0e0e0);
+    color: #333;
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+}
+
+.main-wrapper {
+    display: flex;
+    width: 100%;
+}
+
+
+.page-title-box-1 h3 {
+    padding: 30px;
+    color: #fff;
+}
+
+/* Navigation Bar */
+nav {
+    background: linear-gradient(45deg, #76ABAE, #31363F);
+    width: 250px;
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    padding-top: 20px;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+}
+
+nav ul {
+    list-style: none;
+    width: 100%;
+    padding: 0;
+}
+
+nav ul li {
+    width: 100%;
+}
+
+nav ul li a {
+    color: white;
+    text-decoration: none;
+    padding: 15px 20px;
+    display: block;
+    width: 100%;
+    transition: background-color 0.3s ease;
+    text-align: center;
+}
+
+nav ul li a:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Main Content */
+main {
+    width: 100%;
+    max-width: 800px;
+    margin: 30px auto;
+    padding: 20px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    animation: fadeIn 0.5s ease;
+}
+
+/* Back Link */
+.back-link {
+    display: block;
+    margin: 15px 20px 0 0;
+    color: #5f6364;
+    font-weight: 600;
+    padding: 15px 20px ;
+    border-radius: 8px;
+    background-color: #ecf0f1;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s ease, color 0.3s ease;
+    text-decoration: none;
+    align-items: flex-start;
+    font-size: 1em;
+}
+
+.back-link:hover {
+    background-color: #31363fc8;
+    color: #fff;
+}
+
+/* Form Styles */
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+form label {
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: #31363F;
+}
+
+form input[type="date"],
+form input[type="time"] {
+    width: 100%;
+    max-width: 950px;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1em;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+form input[type="submit"] {
+    display: block;
+    align-items: flex-start;
+    font-size: 1em;
+    font-weight: 600;
+    padding: 15px 335px ;
+    border-radius: 8px;
+    margin: 15px 20px 0 0;
+    margin-bottom: 10px;
+}
+
+form input[type="date"]:focus,
+form input[type="time"]:focus {
+    border-color: #76ABAE;
+    box-shadow: 0 0 5px rgba(118, 171, 174, 0.5);
+}
+
+form input[type="submit"] {
+    background: linear-gradient(45deg, #76ABAE, #31363F);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+form input[type="submit"]:hover {
+    background-color: #1f2a30;
+    transform: scale(1.05);
+}
+
+/* Checkbox List */
+form ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+form ul li {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+form ul li input[type="checkbox"] {
+    margin-right: 10px;
+}
+
+form ul li label {
+    font-weight: 600;
+    color: #31363F;
+}
+
+.employee-schedule{
+    padding: 10px;
+    margin: 10px;
+    width: 100%;
+}
+
+.employee-schedule p{
+    padding: 0 10px 20px 0;
+    margin: 0 0 10px;
+    font-weight: bold;
+}
+
+
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
