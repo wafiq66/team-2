@@ -72,9 +72,10 @@
                 <h3>REZEKY TOMYAM</h3>
             </div>
             <ul>
-                <li><a href="main_manager.jsp">Home</a></li>
-                <li><a href="report_update.jsp">Report</a></li>
-                <li><a href="manage_schedule_main.jsp">Schedule</a></li>
+                <li><a href="main_officer.jsp">Home</a></li>
+                <li><a href="officer_employee_list.jsp">Employee</a></li>
+                <li><a href="officer_salary_main.jsp">Salary</a></li>
+                <li><a href="officer_verified_report.jsp">Report</a></li>
                 <li><a href="welcome.html">Log Out</a></li>
             </ul>
         </nav>

@@ -66,7 +66,7 @@
                 <h3 class="user-name m-t-0 mb-0"><%=employee.getEmployeeName()%></h3>
                 <ul class="personal-info">
                     <li>Employee ID: <%=employee.getEmployeeID()%></li>
-                    <li>Employee Password: <%=employee.getEmployeePassword()%></li>
+                    <li>Employee Password: ****</li>
                     <li>Phone: <%=employee.getEmployeePhoneNumber()%></li>
                     <li>Email: <%=employee.getEmployeeEmail()%></li>
                     <li>Passport No: <%=employee.getPassportNumber()%></li>

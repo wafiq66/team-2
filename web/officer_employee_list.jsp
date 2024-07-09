@@ -95,7 +95,7 @@
                             <tr>
                                 <form action="manage_employee.do" method="post">
                                     <td><%= employee.getEmployeeID() %></td>
-                                    <td><%= employee.getEmployeePassword() %></td>
+                                    <td>*****</td>
                                     <td><%= employee.getEmployeeName() %></td>
                                     <td><%= employee.getEmployeePhoneNumber() %></td>
                                     <td><%= employee.getEmployeeEmail() %></td>
