@@ -69,7 +69,7 @@ public class LoginController extends HttpServlet {
         Employee employee = employeeDAO.getEmployeeById(employeeID);
 
         if (employee == null) {
-            String message = "Account Does Not Exist";
+            String message = "Account Does Not Exist. Please Re-enter Valid Credentials.";
             request.setAttribute("message", message);
             request.getRequestDispatcher("login_employee.jsp").forward(request, response);
         } else {
@@ -78,12 +78,12 @@ public class LoginController extends HttpServlet {
                     session.setAttribute("employeeLog", employee);
                     request.getRequestDispatcher("main_employee.jsp").forward(request, response);
                 } else {
-                    String message = "Account Is Not Active";
+                    String message = "Account Is Not Active. Please Re-enter Valid Credentials.";
                     request.setAttribute("message", message);
                     request.getRequestDispatcher("login_employee.jsp").forward(request, response);
                 }
             } else {
-                String message = "Wrong Password";
+                String message = "Wrong Password. Please Re-enter Valid Credentials.";
                 request.setAttribute("message", message);
                 request.getRequestDispatcher("login_employee.jsp").forward(request, response);
             }
