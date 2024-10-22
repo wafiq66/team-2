@@ -21,7 +21,7 @@ public class Connect {
         if (conn == null) {
             try {
                 String driver = "oracle.jdbc.OracleDriver";
-                String connectionString = "jdbc:oracle:thin:@localhost:1521:XE";
+                String connectionString = "jdbc:oracle:thin:@localhost:1531:XE";
                 String username = "EMS-DB";
                 String password = "123";
                 
