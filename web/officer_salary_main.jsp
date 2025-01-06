@@ -29,12 +29,21 @@
         yearObject = (yearObject != null) ? yearObject : 0;
         int year = yearObject.intValue();
         
-        Salary targetSalary = (Salary) request.getAttribute("targetSalary");
+        Integer employeeIDObject = (Integer) request.getAttribute("employeeId");
+        employeeIDObject = (employeeIDObject != null) ? employeeIDObject : 0;
+        int employeeID = employeeIDObject.intValue();
+        
 
         Salary[] salaries = null;
-        if (monthInt > 0 && year > 0) {
+        if (monthInt > 0 && year > 0 && employeeID>0) {
+            System.out.println(employeeID);
+            salaries = new Salary[1];
+            salaries[0] = salaryDAO.getCalculatedEmployeeSalary(employeeDAO.getEmployeeById(employeeID),monthInt, year);
+        }
+        else if (monthInt > 0 && year > 0 && employeeID == 0) {
             salaries = salaryDAO.getCalculatedEmployeeSalary(monthInt, year);
         }
+        
     %>
     <div class="main-wrapper">
         <nav>
@@ -85,18 +94,8 @@
                             </tr>
                         </thead>
                         <tbody>  
-                            <% if (targetSalary != null) {
-                                employee = employeeDAO.getEmployeeById(targetSalary.getEmployeeID());
-                            %>
-                                <tr>
-                                    <td><%= employee != null ? employee.getEmployeeID() : "N/A" %></td>
-                                    <td><%= employee != null ? employee.getEmployeeName() : "N/A" %></td>
-                                    <td><%= targetSalary.getSalaryMonth() %></td>
-                                    <td><%= targetSalary.getSalaryYear() %></td>
-                                    <td><%= targetSalary.getTotalHoursWorked() %></td>
-                                    <td>RM<%= targetSalary.getSalaryAmount() %></td>
-                                </tr>
-                            <% } else if (salaries != null) {
+                            <% 
+                            if (salaries != null) {
                                 for (Salary s : salaries) {
                                     employee = employeeDAO.getEmployeeById(s.getEmployeeID());
                             %>
@@ -110,7 +109,7 @@
                                 </tr>
                             <% } } else { %>
                                 <tr>
-                                    <td colspan="6"><em>No Record</em></td>
+                                    <td colspan="7"><em>No Record</em></td>
                                 </tr>
                             <% } %>
                         </tbody>

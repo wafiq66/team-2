@@ -41,7 +41,8 @@
         LocalDate startOfWeek = currentDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
         LocalDate endOfWeek = currentDate.with(TemporalAdjusters.nextOrSame(DayOfWeek.SATURDAY));
         
-        
+        LocalDate startOfNextWeek = startOfWeek.plusWeeks(1);
+        LocalDate endOfNextWeek = endOfWeek.plusWeeks(1);
     %>
     
     <div class="main-wrapper">
@@ -73,8 +74,8 @@
                     <select name="offDate" class="custom-shift" style="width:100%;" required>
                         <%
                             // Loop through the week from startOfWeek to endOfWeek
-                            LocalDate dateIterator = startOfWeek;
-                            while (!dateIterator.isAfter(endOfWeek)) {
+                            LocalDate dateIterator = startOfNextWeek;
+                            while (!dateIterator.isAfter(endOfNextWeek)) {
                                 // Format the date to a string for the value attribute
                                 String dateValue = dateIterator.toString();
                         %>
@@ -88,7 +89,7 @@
                     
                     <br>
                     <input type="hidden" name="employeeID" value="<%= employee.getEmployeeID() %>">
-                    <input type="hidden" name="forWhich" value="1">
+                    <input type="hidden" name="forWhich" value="2">
                     <input type="hidden" name="action" value="createSchedule">
                     <input name="save" type="submit" value="Create">
                 </form>

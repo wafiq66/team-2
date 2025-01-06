@@ -4,8 +4,8 @@
  * and open the template in the editor.
  */
 package com.ems.dao;
+
 import com.ems.model.Schedule;
-import com.ems.model.Employee;
 /**
  *
  * @author user
@@ -13,10 +13,12 @@ import com.ems.model.Employee;
 public interface ScheduleDAO {
     
     Schedule getScheduleByID(int scheduleID);
-    int createSchedule(Schedule schedule);
+    Schedule getActiveScheduleByEmployeeID(int employeeID);
+    Schedule getFutureScheduleByEmployeeID(int employeeID);
+    boolean getLockedScheduleStatus(int scheduleID);
+    void insertSchedule(Schedule schedule);
     void updateSchedule(Schedule schedule);
-    void deleteSchedule(Schedule schedule);
-    Schedule fetchLatestSchedule(Employee employee);
-    Schedule[] getAllScheduleByBranch(int branchID);
+    Schedule[] getAllScheduleByEmployeeID(int employeeID);
+    Schedule[] getAllActiveScheduleByBranchID(int branchID);
     
 }

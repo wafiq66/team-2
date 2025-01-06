@@ -18,10 +18,8 @@
 <body>
     <%
         final SalaryDAO salaryDAO = new SalaryDAOImpl();
-        final EmployeeDAO employeeDAO = new EmployeeDAOImpl();
         Employee employee = (Employee) session.getAttribute("employeeLog");
         Salary[] salaries = salaryDAO.getCalculatedEmployeeSalary(employee);
-        
     %>
     <div class="main-wrapper"> <!--add new class for body-->
 
@@ -59,20 +57,27 @@
                         <th>Salary</th>
                     </tr>
                 </thead>
-                <tbody>  
+                <tbody>
                     <% 
-                        
-                        for(Salary s:salaries){%>
-                     <tr>
-                            <td><%= s.getSalaryMonth() %></td>
-                            <td><%= s.getSalaryYear() %></td>
-                            <td><%= s.getTotalHoursWorked() %></td>
-                            <td>RM <%= s.getSalaryAmount() %></td>
-                        </tr>
-                    
-                    <%} %>
-                       
+                        if (salaries != null && salaries.length > 0) { // Check if salaries is not null and not empty
+                            for(Salary s : salaries) { 
+                    %>
+                                <tr>
+                                    <td><%= s.getSalaryMonth() %></td>
+                                    <td><%= s.getSalaryYear() %></td>
+                                    <td><%= s.getTotalHoursWorked() %></td>
+                                    <td>RM <%= s.getSalaryAmount() %></td>
+                                </tr>
+                    <% 
+                            }
+                        } else { 
+                    %>
+                            
+                    <% 
+                        }
+                    %>
                 </tbody>
+
             </table>
         </div>
     </main>

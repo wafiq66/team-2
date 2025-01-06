@@ -1,6 +1,4 @@
-<%@page import="com.ems.model.Report"%>
-<%@page import="com.ems.dao.ReportDAOImpl"%>
-<%@page import="com.ems.dao.ReportDAO"%>
+
 <%@page import="java.time.LocalDate"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="com.ems.model.Attendance"%>
@@ -16,6 +14,7 @@
 <%@page import="com.ems.dao.EmployeeDAO"%>
 <%@page import="com.ems.dao.EmployeeDAOImpl"%>
 
+<%@ page import="java.text.SimpleDateFormat" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -38,28 +37,30 @@
 </head>
 <body>
     <%
-    final ReportDAO reportDAO = new ReportDAOImpl();
-    final AttendanceDAO attendanceDAO = new AttendanceDAOImpl();
-    final EmployeeDAO employeeDAO = new EmployeeDAOImpl();
-    
-    Integer monthObj = (Integer) request.getAttribute("month");
-    Integer yearObj = (Integer) request.getAttribute("year");
-    
-    int month = (monthObj != null) ? monthObj.intValue() : 0;
-    int year = (yearObj != null) ? yearObj.intValue() : 0;
-    
-    RestaurantManager manager = (RestaurantManager) session.getAttribute("managerLog");
-    Report report = null;
-    if (manager != null) {
-        report = reportDAO.RetrieveReport(manager, month, year);
-    }
-    
-    Employee employee;
-    Attendance[] attendances = null;
-    
-    if (report != null) {
-        attendances = attendanceDAO.getAllAttendancesByReport(report);
-    }
+        final AttendanceDAO attendanceDAO = new AttendanceDAOImpl();
+        final EmployeeDAO employeeDAO = new EmployeeDAOImpl();
+        Employee employee = new Employee();
+        
+        Attendance[] attendance;
+        
+        int[] attendanceIDArray = (int[]) request.getAttribute("attendanceID");
+        // Assuming attendanceIDArray is already defined and populated somewhere in your code
+
+        if (attendanceIDArray != null) {
+            // Check if the first element is -999
+            if (attendanceIDArray.length == 1 && attendanceIDArray[0] == -999) {
+                // Do nothing if attendanceIDArray contains -999
+                attendance = new Attendance[0];
+            } else {
+                // Proceed to retrieve attendance records using attendanceIDArray
+                attendance = attendanceDAO.selectAllAttendance(attendanceIDArray);
+            }
+        } else {
+            // If attendanceIDArray is null, get attendance records for the employee
+            attendance = attendanceDAO.selectAllAttendance(employee);
+        }
+        
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
     %>
     <div class="main-wrapper"> 
         <nav class="nav-bar"> 
@@ -89,35 +90,69 @@
                         <button type="submit" class="submit-button">Find</button><br>
                     </form>
                     <br>
-                    <table class="verifiedTable" border="1">
-                        <tr>
-                            <th>Employee ID</th>
-                            <th>Employee Name</th>
-                            <th>Attendance ID</th>
-                            <th>Attendance Date</th>
-                            <th>Clock In Time</th>
-                            <th>Clock Out Time</th>
-                        </tr>
-                        <% if (attendances == null || attendances.length == 0) { %>
+                    <table id="verifiedTable" border="1">
+                        <thead>
                             <tr>
-                                <td colspan="6" style="text-align:center;"><em>No Record Has Been Found</em></td>
+                                <th>Employee ID</th>
+                                <th>Employee Name</th>
+                                <th>Attendance Date</th>
+                                <th>Clock In Time</th>
+                                <th>Clock Out Time</th>
+                                <th>Overtime Duration</th>
+                                <th>Emergency Leave Note</th>
+                                <th>Late Clock In Duration</th>
+                                <th>Total Hours</th>
                             </tr>
-                        <% } else {
-                            for (Attendance attendance : attendances) {
-                                employee = employeeDAO.getEmployeeByAttendance(attendance);
-                                if (employee!= null) {
-                        %>
-                        <tr>
-                            <td><%= employee.getEmployeeID() %></td>
-                            <td><%= employee.getEmployeeName() %></td>
-                            <td><%= attendance.getAttendanceID() %></td>
-                            <td><%= attendance.getAttendanceDate() %></td>
-                            <td><%= attendance.getClockInTime() %></td>
-                            <td><%= attendance.getClockOutTime() %></td>
-                        </tr>
-                        <%         }
-                            }
-                        } %>
+                        </thead>
+                        <tbody>
+                            <%
+                                if (attendance != null && attendance.length > 0) {
+                                    for (Attendance a : attendance) {
+                                        System.out.println(a);
+                                        employee = employeeDAO.getEmployeeByAttendance(a);
+                            %>
+                            <tr>
+                                <td><%= employee.getEmployeeID() %></td>
+                                <td><%= employee.getEmployeeName() %></td>
+                                <td><%= a.getAttendanceDate() %></td>
+                                <td><%= sdf.format(a.getClockInTime()) %></td>
+                                <td><%= sdf.format(a.getClockOutTime()) %></td>
+                                <td>
+                                    <%
+                                        if (a.getOvertimeDuration() != null) {
+                                            // Format the overtime duration if it's not null
+                                            out.print(sdf.format(a.getOvertimeDuration()));
+                                        } else {
+                                            // Handle the case where overtimeDuration is null
+                                            out.print("N/A"); // or you can use an empty string: out.print("");
+                                        }
+                                    %>
+                                </td>
+                                <td><%= a.getEmergencyLeaveNote() %></td>
+                                <td>
+                                    <%
+                                        if (a.getLateClockInDuration() != null) {
+                                            // Format the overtime duration if it's not null
+                                            out.print(sdf.format(a.getLateClockInDuration()));
+                                        } else {
+                                            // Handle the case where overtimeDuration is null
+                                            out.print("N/A"); // or you can use an empty string: out.print("");
+                                        }
+                                    %>
+                                </td>
+                                <td><%= a.calculateTotalHours() %></td>
+                            </tr>
+                            <%
+                                    }
+                                } else {
+                            %>
+                            <tr>
+                                <td colspan="9"> </td>
+                            </tr>
+                            <%
+                                }
+                            %>
+                        </tbody>
                     </table>
                 </div>
             </main>

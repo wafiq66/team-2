@@ -15,9 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.ems.model.Schedule;
 import com.ems.dao.ScheduleDAO;
 import com.ems.dao.ScheduleDAOImpl;
-import com.ems.model.EmployeeSchedule;
-import com.ems.dao.EmployeeScheduleDAO;
-import com.ems.dao.EmployeeScheduleDAOImpl;
+
 import com.ems.model.RestaurantManager;
 import com.ems.dao.ManagerDAO;
 import com.ems.dao.ManagerDAOImpl;
@@ -27,12 +25,41 @@ import com.ems.dao.EmployeeDAOImpl;
 import java.util.Arrays;
 import javax.servlet.http.HttpSession;
 
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+
+import java.sql.Date;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
+import java.time.DayOfWeek;
+import java.time.format.DateTimeFormatter;
+
 public class ManageScheduleController extends HttpServlet {
     final ScheduleDAO scheduleDAO = new ScheduleDAOImpl();
     final ManagerDAO managerDAO = new ManagerDAOImpl();
-    final EmployeeScheduleDAO employeeScheduleDAO = new EmployeeScheduleDAOImpl();
+    
     final EmployeeDAO employeeDAO = new EmployeeDAOImpl();
-
+    
+    //start shift time and end time
+    String defaultDate = "2000-01-01 ";
+    Timestamp[] timeArray = new Timestamp[]{
+        Timestamp.valueOf(defaultDate + "00:00:00"),
+        Timestamp.valueOf(defaultDate + "08:00:00"),
+        Timestamp.valueOf(defaultDate + "16:00:00"),
+        Timestamp.valueOf(defaultDate + "23:59:00")
+    };
+    
+    private Timestamp startShiftTypeChecker(int a){
+        return timeArray[a-1];
+    }
+    
+    private Timestamp endShiftTypeChecker(int a){
+        return timeArray[a];
+    }
+    
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -51,9 +78,13 @@ public class ManageScheduleController extends HttpServlet {
             if(action.equals("viewSpecificSchedule")){
                 viewSpecificSchedule(request,response);
             }
-            else if(action.equals("updateEmployee")){
-                updateSchedule(request,response);
+            else if(action.equals("editingSchedule")){
+                editingSchedule(request,response);
                 System.out.println("masuk2");
+            }
+            else if(action.equals("updateSchedule")){
+                updateSchedule(request,response);
+                System.out.println("masa");
             }
             else if(action.equals("deleteSchedule")){
                 deleteSchedule(request,response);
@@ -65,14 +96,36 @@ public class ManageScheduleController extends HttpServlet {
     }
     protected void viewSpecificSchedule(HttpServletRequest request, HttpServletResponse response){
         try{
-            int scheduleID = Integer.parseInt(request.getParameter("scheduleID")) ;
+            int employeeID = Integer.parseInt(request.getParameter("employeeID")) ;
             HttpSession session = request.getSession();
-            Schedule schedule = scheduleDAO.getScheduleByID(scheduleID);
-
-            session.setAttribute("editingSchedule", schedule);
+            Employee employee = employeeDAO.getEmployeeById(employeeID);
+            
+            session.setAttribute("employee", employee);
             request.getRequestDispatcher("specific_schedule.jsp").forward(request, response);
         }catch(Exception e){
             // Handle exception
+        }
+    }
+    
+    protected void editingSchedule(HttpServletRequest request, HttpServletResponse response){
+        try{
+            int scheduleID = Integer.parseInt(request.getParameter("scheduleID")) ;
+            HttpSession session = request.getSession();
+            
+            if(scheduleDAO.getLockedScheduleStatus(scheduleID)){
+                request.setAttribute("message", "The employee is currently working. The schedule cannot be edited at this time.");
+                request.getRequestDispatcher("specific_schedule.jsp").forward(request, response);
+            }
+            else{
+                Schedule schedule = scheduleDAO.getScheduleByID(scheduleID);
+            
+                System.out.println(schedule.toString());
+                session.setAttribute("editingSchedule", schedule);
+                request.getRequestDispatcher("edit_schedule.jsp").forward(request, response);
+            }
+            
+        }catch(Exception e){
+            System.out.println("Ada masalah ni babi");
         }
     }
     
@@ -80,42 +133,18 @@ public class ManageScheduleController extends HttpServlet {
         try{
             HttpSession session = request.getSession();
             Schedule schedule = (Schedule) session.getAttribute("editingSchedule");
-            EmployeeSchedule[] employeeSchedule = employeeScheduleDAO.getScheduleStatus(schedule);
-            RestaurantManager manager = (RestaurantManager) session.getAttribute("managerLog");
-            //read value
-            String date = request.getParameter("scheduleDate");
-            String startShift = request.getParameter("startShift"); // Fix: changed from "scheduleDate" to "startShift"
-            String endShift = request.getParameter("endShift");
-            String[] employeeIDsStr = request.getParameterValues("list-employee");
-            int[] employeeIDs = Arrays.stream(employeeIDsStr).mapToInt(Integer::parseInt).toArray();
             
-            Employee[] selectedEmployee = employeeDAO.getAllEmployeeById(employeeIDs);
-            Employee[] employeeBranch = employeeDAO.getAllEmployeeByBranch(managerDAO.getRestaurantManagerBranchId(manager));
-            //deactive everything first
-            for(Employee e: employeeBranch){
-                employeeScheduleDAO.deactiveSchedule(schedule,e);
-            }
-            //reactive selected one
-            for(Employee e: selectedEmployee){
-                employeeScheduleDAO.activeSchedule(schedule,e);
-            }
+            int scheduleRange = Integer.parseInt(request.getParameter("shiftType"));
             
-            String startShiftWithSecs = (startShift + ":00").substring(0, 8); // append ":00" and truncate to 8 characters
-            String endShiftWithSecs = (endShift + ":00").substring(0, 8); // append ":00" and truncate to 8 characters
+            //set range shift
+            schedule.setStartShift(startShiftTypeChecker(scheduleRange));
+            schedule.setEndShift(endShiftTypeChecker(scheduleRange));
             
-            System.out.println(date);
-            System.out.println(startShiftWithSecs);
-            System.out.println(endShiftWithSecs);
-
-
-            schedule.setScheduleDate(date); // No need to format, use the original date string
-            schedule.setStartShift(startShiftWithSecs); // No need to format, use the original startShift string
-            schedule.setEndShift(endShiftWithSecs); // No need to format, use the original endShift string
-
             scheduleDAO.updateSchedule(schedule);
-            String message = "Successfully Update!";
+            
+            String message = "Schedule Successfully Updated!";
             request.setAttribute("message", message);
-            request.getRequestDispatcher("specific_schedule.jsp").forward(request, response);
+            request.getRequestDispatcher("edit_schedule.jsp").forward(request, response);
             
         }catch(Exception e){
             // Handle exception
@@ -127,15 +156,10 @@ public class ManageScheduleController extends HttpServlet {
     protected void deleteSchedule(HttpServletRequest request, HttpServletResponse response){
         try{
             HttpSession session = request.getSession();
-            Schedule schedule = (Schedule) session.getAttribute("editingSchedule");
+            int scheduleID = Integer.parseInt(request.getParameter("scheduleID")) ;
+            Schedule schedule = scheduleDAO.getScheduleByID(scheduleID);
             
-            employeeScheduleDAO.deleteEmployeeSchedule(schedule);
-            scheduleDAO.deleteSchedule(schedule);
             
-            session.setAttribute("editingSchedule",null);
-            String message = "Successfully Deleted!";
-            request.setAttribute("message", message);
-            request.getRequestDispatcher("manage_schedule_main.jsp").forward(request, response);
             
         }catch(Exception e){
             // Handle exception
@@ -149,47 +173,57 @@ public class ManageScheduleController extends HttpServlet {
             //call data
             HttpSession session = request.getSession();
             Schedule schedule = new Schedule();
-            RestaurantManager manager = (RestaurantManager) session.getAttribute("managerLog");
-            //read value
-            String date = request.getParameter("scheduleDate");
-            String startShift = request.getParameter("startShift"); // Fix: changed from "scheduleDate" to "startShift"
-            String endShift = request.getParameter("endShift");
             
-                //both of this to read array value of create schedule
-            String[] employeeIDsStr = request.getParameterValues("list-employee");
-            int[] employeeIDs = Arrays.stream(employeeIDsStr).mapToInt(Integer::parseInt).toArray();
+            //employee id
+            Employee employee = (Employee)session.getAttribute("employee");
             
-            //get list of selected employee
-            Employee[] selectedEmployee = employeeDAO.getAllEmployeeById(employeeIDs);
-            //get list of employee by branch 
-            Employee[] employeeBranch = employeeDAO.getAllEmployeeByBranch(managerDAO.getRestaurantManagerBranchId(manager));
-            //to fix the format of the time
-            String startShiftWithSecs = (startShift + ":00").substring(0, 8); // append ":00" and truncate to 8 characters
-            String endShiftWithSecs = (endShift + ":00").substring(0, 8); // append ":00" and truncate to 8 characters
-            //test
-            System.out.println(date);
-            System.out.println(startShiftWithSecs);
-            System.out.println(endShiftWithSecs);
-
-            //register the schedule into a class
-            schedule.setScheduleDate(date); // No need to format, use the original date string
-            schedule.setStartShift(startShiftWithSecs); // No need to format, use the original startShift string
-            schedule.setEndShift(endShiftWithSecs); // No need to format, use the original endShift string
+            //for future or present
+            int forWhich = Integer.parseInt(request.getParameter("forWhich"));
             
-            schedule.setScheduleID(scheduleDAO.createSchedule(schedule));
+            //off date value
+            String date = request.getParameter("offDate");
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            java.util.Date offDate = sdf.parse(date);
+            Date sqlOffDate = new java.sql.Date(offDate.getTime());
             
-            //deactive everything first
-            for(Employee e: employeeBranch){
-                employeeScheduleDAO.deactiveSchedule(schedule,e);
+            LocalDate currentDate = LocalDate.now();
+            // Find the start (Sunday) and end (Saturday) of the current week
+            LocalDate startOfWeek = currentDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
+            LocalDate endOfWeek = currentDate.with(TemporalAdjusters.nextOrSame(DayOfWeek.SATURDAY));
+            
+            //Find the next week date range
+            LocalDate startOfNextWeek = startOfWeek.plusWeeks(1);
+            LocalDate endOfNextWeek = endOfWeek.plusWeeks(1);
+            
+            // Date begin and date end (current)
+            Date startOfWeekSql = Date.valueOf(startOfWeek);
+            Date endOfWeekSql = Date.valueOf(endOfWeek);
+            
+            //Date begin and end (next week)
+            Date startOfNextWeekSql = Date.valueOf(startOfNextWeek);
+            Date endOfNextWeekSql = Date.valueOf(endOfNextWeek);
+            
+            int scheduleRange = Integer.parseInt(request.getParameter("shiftType")); 
+            
+            //Set the value into the schedule object
+            schedule.setEmployeeID(employee.getEmployeeID()); //employee id
+            schedule.setOffDay(sqlOffDate); //off day
+            //set the date begin and date end
+            if(forWhich == 1){
+                schedule.setDateBegin(startOfWeekSql); //date schedule begin
+                schedule.setDateEnd(endOfWeekSql); //date schedule end
             }
-            //reactive selected one
-            for(Employee e: selectedEmployee){
-                employeeScheduleDAO.activeSchedule(schedule,e);
+            else if(forWhich ==2){
+                schedule.setDateBegin(startOfNextWeekSql); //date schedule begin
+                schedule.setDateEnd(endOfNextWeekSql); //date schedule end
             }
+            schedule.setStartShift(startShiftTypeChecker(scheduleRange)); //shift start time
+            schedule.setEndShift(endShiftTypeChecker(scheduleRange)); //shift end time
             
-            String message = "Successfully Created!";
-            request.setAttribute("message", message);
-            request.getRequestDispatcher("manage_schedule_main.jsp").forward(request, response);
+            System.out.println(schedule.toString());
+            
+            scheduleDAO.insertSchedule(schedule);
+            request.getRequestDispatcher("specific_schedule.jsp").forward(request, response);
             
         }catch(Exception e){
             // Handle exception

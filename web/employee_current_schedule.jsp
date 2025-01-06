@@ -8,6 +8,8 @@
 <%@page import="com.ems.dao.ScheduleDAO" %>
 <%@page import="com.ems.dao.ScheduleDAOImpl" %>
 
+<%@ page import="java.text.SimpleDateFormat" %>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -23,7 +25,8 @@
     final ScheduleDAO scheduleDAO = new ScheduleDAOImpl();
     Employee employee = (Employee) session.getAttribute("employeeLog");
     Branch branch = null;
-    Schedule schedule = scheduleDAO.fetchLatestSchedule(employee);
+    Schedule schedule = scheduleDAO.getActiveScheduleByEmployeeID(employee.getEmployeeID());
+    SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
     %>
     <div class="main-wrapper"> 
         <!-- Navigation -->
@@ -55,16 +58,30 @@
                     <table>
                         <thead>
                             <tr>
-                                <th>Schedule Date</th>
+                                <th>Off Date</th>
+                                <th>Begin Date</th>
+                                <th>End Date</th>
                                 <th>Start Shift</th>
                                 <th>End Shift</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td><%= schedule.getScheduleDate() %></td>
-                                <td><%= schedule.getStartShift() %></td>
-                                <td><%= schedule.getEndShift() %></td>
+                                <%
+                                if (schedule != null) {
+                                %>
+                                    <td><%= schedule.getOffDay() %></td>
+                                    <td><%= schedule.getDateBegin() %></td>
+                                    <td><%= schedule.getDateEnd() %></td>
+                                    <td><%= sdf.format(schedule.getStartShift())  %></td>
+                                    <td><%= sdf.format(schedule.getEndShift())  %></td>
+                                <%
+                                } else {
+                                %>
+                                    <td colspan="5" style="text-align: center;"> </td>
+                                <%
+                                }
+                                %>
                             </tr>
                         </tbody>
                     </table>
@@ -77,4 +94,3 @@
     </footer>
 </body>
 </html>
-

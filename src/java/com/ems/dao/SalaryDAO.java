@@ -13,9 +13,6 @@ import com.ems.model.Employee;
  */
 public interface SalaryDAO {
     
-    Salary[] getUncalculatedEmployeeSalary(int month,int year);
-    Salary getUncalculatedEmployeeSalary(Employee employee,int month,int year);
-    Salary[] getUncalculatedEmployeeSalary(Employee employee);
     
     void recordSalary(Salary salary);
     void updateSalary(Salary salary);

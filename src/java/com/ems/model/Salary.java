@@ -67,5 +67,12 @@ public class Salary {
     public double getSalaryAmount() {
         return SalaryAmount;
     }
+
+    @Override
+    public String toString() {
+        return "Salary{" + "EmployeeID=" + EmployeeID + ", SalaryMonth=" + SalaryMonth + ", SalaryYear=" + SalaryYear + ", TotalHoursWorked=" + TotalHoursWorked + ", SalaryAmount=" + SalaryAmount + '}';
+    }
+    
+    
     
 }

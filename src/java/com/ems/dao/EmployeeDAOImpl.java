@@ -148,11 +148,8 @@ public class EmployeeDAOImpl implements EmployeeDAO {
     public Employee getEmployeeByAttendance(Attendance attendance) {
         this.conn = Connect.getConnection();
         Employee employee = null;
-        String sql = "SELECT DISTINCT E.* " +
-                     "FROM EMPLOYEE E " +
-                     "JOIN EMPLOYEESCHEDULE ES ON E.EMPLOYEEID = ES.EMPLOYEEID " +
-                     "JOIN ATTENDANCE A ON ES.EMPLOYEESCHEDULEID = A.EMPLOYEESCHEDULEID " +
-                     "WHERE A.ATTENDANCEID = ?";
+        String sql = "SELECT * FROM EMPLOYEE_ATTENDANCE WHERE ATTENDANCEID = ?";
+
         try (PreparedStatement statement = conn.prepareStatement(sql)) {
             statement.setInt(1, attendance.getAttendanceID());
             try (ResultSet resultSet = statement.executeQuery()) {
@@ -174,6 +171,7 @@ public class EmployeeDAOImpl implements EmployeeDAO {
         }
         return employee;
     }
+
 
     
     @Override

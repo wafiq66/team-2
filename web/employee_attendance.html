@@ -1,0 +1,134 @@
+<!-- aku delete section ngan class main-container-->
+ <!-- aku delete <h2> rezeky toye ngan <p> masa tu-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet" />
+    <title>Attendance Page</title>
+    <link rel="stylesheet" href="css/emp-attendance.css">
+</head>
+<body>
+    <div class="main-wrapper"> <!--add new class for body-->
+    <nav>
+        <div class="page-title-box-1"> <!--class page title tukar kat sini-->
+            <h3>REZEKY TOMYAM</h3>
+        </div>
+        <ul>
+            <li><a href="main_employee.html">Home</a></li>
+            <li><a href="employee_profile_main.html">Profile</a></li>
+            <li><a href="employee_current_schedule.html">Schedule</a></li>
+            <li><a href="employee_attendance.html">Attendance</a></li>
+            <li><a href="#contact">Salary</a></li>
+            <li><a href="welcome.html">Log Out</a></li>
+        </ul>
+    </nav>
+
+     <!-- Content -->
+     <div class="content"> <!---new class for content-->
+        <header class="header"> <!---new class-->
+            <div class="page-title-box"> <!---new class-->
+                <h3>Attendance</h3>
+            </div>
+        </header>
+    
+
+        <main> <!--new tag-->
+        <a href="main_employee.html" class="back-link">Back</a> <!--new class added-->
+            <div class="attendance-container">
+                <div class="date-time">
+                    <p id="currentDateTime">2022-01-01 12:45:00</p>
+                </div>
+                <form action="record_attendance.do" method="post">
+                    <input type="hidden" name="action" value="in">
+                    <input type="submit" id="employeeId" value="Clock In" 
+                           disabled
+                           >
+                </form>
+                <form action="record_attendance.do" method="post">
+                    <input type="hidden" name="action" value="out">
+                    <input type="submit" id="employeeId" value="Clock Out" 
+                           disabled
+                           >
+                </form>
+                <form id="emergencyClockOutFormTrigger">
+                    <input type="hidden" name="action" value="out">
+                    <input 
+                        type="button" 
+                        id="employeeId" 
+                        class="emergency-btn"
+                        value="Emergency Clock Out" 
+                        onclick="showConfirmation()"
+                    >
+                </form>
+                <p></p>
+                
+                <!-- Emergency Clock Out Form Popup -->
+                <div id="emergencyFormPopup" class="popup-overlay">
+                    <div class="popup-content">
+                        <h3>Emergency Clock Out Form</h3>
+                        <form id="emergencyClockOutForm" action="record_attendance.do" method="post">
+                            <input type="hidden" name="action" value="emergency_out">
+                            <div class="form-group">
+                                <label for="reason">Reason for Emergency Clock Out:</label>
+                                <textarea id="reason" name="reason" required></textarea>
+                            </div>
+                            <div class="button-group">
+                                <button type="button" class="btn btn-cancel" onclick="closeEmergencyForm()">Cancel</button>
+                                <button type="submit" class="btn btn-submit">Submit</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Confirmation Popup -->
+                <div id="confirmationPopup" class="popup-overlay">
+                    <div class="popup-content confirmation-popup">
+                        <h3>Emergency Clock Out</h3>
+                        <p>Confirm clock out? Emergency clock out is final and will be recorded.</p>
+                        <div class="button-group">
+                            <button class="btn btn-cancel" onclick="closeConfirmation()">Cancel</button>
+                            <button class="btn btn-continue" onclick="showEmergencyForm()">Continue</button>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="attandance_history.html">View Attendance History</a>
+                
+            </div>
+    </main>
+    </div>
+    <footer> <!-- aku delete class footer-->
+        <p>&copy; rezky tomyam employee management system</p>
+    </footer>
+</div>
+</div>
+</body>
+<script>
+    function showConfirmation() {
+        document.getElementById('confirmationPopup').style.display = 'block';
+    }
+    
+    function closeConfirmation() {
+        document.getElementById('confirmationPopup').style.display = 'none';
+    }
+    
+    function showEmergencyForm() {
+        closeConfirmation();
+        document.getElementById('emergencyFormPopup').style.display = 'block';
+    }
+    
+    function closeEmergencyForm() {
+        document.getElementById('emergencyFormPopup').style.display = 'none';
+    }
+    
+    // Add this to your emergency clock out button
+    document.querySelector('input[value="Emergency Clock Out"]').onclick = function(e) {
+        e.preventDefault();
+        showConfirmation();
+    };
+    </script>
+</html>

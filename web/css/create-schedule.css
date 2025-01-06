@@ -113,6 +113,7 @@ form label {
     color: #31363F;
 }
 
+.custom-shift,
 form input[type="date"],
 form input[type="time"] {
     width: 100%;
@@ -135,7 +136,7 @@ form input[type="submit"] {
     margin: 15px 20px 0 0;
     margin-bottom: 10px;
 }
-
+.custom-shift:focus,
 form input[type="date"]:focus,
 form input[type="time"]:focus {
     border-color: #76ABAE;

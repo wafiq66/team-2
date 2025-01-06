@@ -8,6 +8,8 @@
 <%@page import="com.ems.dao.AttendanceDAO" %>
 <%@page import="com.ems.dao.AttendanceDAOImpl" %>
 
+<%@ page import="java.text.SimpleDateFormat" %>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -22,8 +24,27 @@
     <%
         final AttendanceDAO attendanceDAO = new AttendanceDAOImpl();
         Employee employee = (Employee) session.getAttribute("employeeLog");
-        int[] attendanceID = (int[]) request.getAttribute("attendanceID");
-        Attendance[] attendance = attendanceDAO.getAllAttendances(employee);
+        
+        Attendance[] attendance;
+        
+        int[] attendanceIDArray = (int[]) request.getAttribute("attendanceID");
+        // Assuming attendanceIDArray is already defined and populated somewhere in your code
+
+        if (attendanceIDArray != null) {
+            // Check if the first element is -999
+            if (attendanceIDArray.length == 1 && attendanceIDArray[0] == -999) {
+                // Do nothing if attendanceIDArray contains -999
+                attendance = new Attendance[0];
+            } else {
+                // Proceed to retrieve attendance records using attendanceIDArray
+                attendance = attendanceDAO.selectAllAttendance(attendanceIDArray);
+            }
+        } else {
+            // If attendanceIDArray is null, get attendance records for the employee
+            attendance = attendanceDAO.selectAllAttendance(employee);
+        }
+        
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
     %>
     <div class="main-wrapper">
         <nav class="nav-bar">
@@ -50,7 +71,7 @@
             <main>
                 <a href="employee_attendance.jsp" class="back-link">Back</a>
                 <div class="attendance-container">
-                    <h2> <%= employee.getEmployeeName()%>'s Attendance History</h2>
+                    <h2> <%= employee.getEmployeeName() %>'s Attendance History</h2>
                     <form action="attendance_record.view" method="post">
                         <label for="month">Month:</label>
                         <input type="month" name="month" id="month" required>
@@ -60,37 +81,44 @@
                     <table id="attendanceHistoryTable" border="1">
                         <thead>
                             <tr>
-                                <th>Date</th>
+                                <th>Attendance Date</th>
                                 <th>Clock In Time</th>
                                 <th>Clock Out Time</th>
+                                <th>Overtime Duration</th>
+                                <th>Total Hours</th>
                             </tr>
                         </thead>
                         <tbody>
                             <%
-                                if(attendanceID!= null){
-                                    for(int id:attendanceID){
-                                        for (Attendance a : attendance) {
-                                            if(a.getAttendanceID() == id){
+                                if (attendance != null && attendance.length > 0) {
+                                    for (Attendance a : attendance) {
+                                        System.out.println(a);
                             %>
                             <tr>
                                 <td><%= a.getAttendanceDate() %></td>
-                                <td><%= a.getClockInTime() %></td>
-                                <td><%= a.getClockOutTime() %></td>
+                                <td><%= sdf.format(a.getClockInTime()) %></td>
+                                <td><%= sdf.format(a.getClockOutTime()) %></td>
+                                <td>
+                                    <%
+                                        if (a.getOvertimeDuration() != null) {
+                                            // Format the overtime duration if it's not null
+                                            out.print(sdf.format(a.getOvertimeDuration()));
+                                        } else {
+                                            // Handle the case where overtimeDuration is null
+                                            out.print("N/A"); // or you can use an empty string: out.print("");
+                                        }
+                                    %>
+                                </td>
+                                <td><%= a.calculateTotalHours() %></td>
                             </tr>
                             <%
-                                            }
-                                        }
                                     }
                                 } else {
-                                    for (Attendance a : attendance) {
                             %>
                             <tr>
-                                <td><%= a.getAttendanceDate() %></td>
-                                <td><%= a.getClockInTime() %></td>
-                                <td><%= a.getClockOutTime() %></td>
+                                <td colspan="5"> </td>
                             </tr>
                             <%
-                                    }
                                 }
                             %>
                         </tbody>
@@ -98,7 +126,6 @@
                 </div>
             </main>
         </div>
-
     </div>
 </body>
 </html>

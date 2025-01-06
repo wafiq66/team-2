@@ -4,6 +4,12 @@
 <%@page import="com.ems.model.RestaurantManager" %>
 <%@page import="com.ems.dao.ManagerDAO" %>
 <%@page import="com.ems.dao.ManagerDAOImpl" %>
+<%@page import="com.ems.model.Employee" %>
+<%@page import="com.ems.dao.EmployeeDAO" %>
+<%@page import="com.ems.dao.EmployeeDAOImpl" %>
+
+<%@ page import="java.sql.Timestamp" %>
+<%@ page import="java.text.SimpleDateFormat" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -29,7 +35,14 @@
         ManagerDAO managerDAO = new ManagerDAOImpl();
         int branchID = managerDAO.getRestaurantManagerBranchId(manager); // Replace with the desired branch ID (commented out for now)
         ScheduleDAO scheduleDAO = new ScheduleDAOImpl();
-        Schedule[] schedules = scheduleDAO.getAllScheduleByBranch(branchID);
+        Schedule[] schedules = scheduleDAO.getAllActiveScheduleByBranchID(branchID);
+        
+        
+        EmployeeDAO employeeDAO = new EmployeeDAOImpl();
+        Employee[] employees = employeeDAO.getAllEmployeeByBranch(branchID);
+        
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+
     %>
     <div class="main-wrapper"> 
         <nav>
@@ -51,33 +64,64 @@
             </header>
             <main>
                 <div class="schedule-container"> 
-                    <form action="view_schedule.do" method="post">
-                        <input type="submit" value="View Current Schedule"><br><br>
-                    </form>
-                    <a href="create_schedule.jsp" class="create-sch">Create Schedule</a> <br> <br>
-                    <p>${message}</p>
+                    
                     <table class="scheduleTable" border="1">
-                        <tr>
-                            <thead>
-                                <th>Schedule Date</th>
+                        <thead>
+                            <tr>
+                                <th>Employee Name</th>
+                                <th>Off Date</th>
                                 <th>Start Shift</th>
                                 <th>End Shift</th>
-                                <th>View Schedule</th>
-                            </thead>
-                        </tr>
-                        <tbody>
-                            <% for (Schedule schedule : schedules) { %>
-                            <tr>
-                                <form action="manage_schedule.do">
-                                    <td><%= schedule.getScheduleDate() %></td>
-                                    <td><%= schedule.getStartShift() %></td>
-                                    <td><%= schedule.getEndShift() %></td>
-                                    <input type="hidden" name="scheduleID" value="<%= schedule.getScheduleID() %>">
-                                    <input type="hidden" name="action" value="viewSpecificSchedule">
-                                    <td><input type="submit" value="View" class="details"></td>
-                                </form>
+                                <th>Action</th>
                             </tr>
-                            <% } %>
+                        </thead>
+                        <tbody>
+                            <%
+                                for (Employee employee : employees) {
+                                    boolean hasSchedule = false; // Flag to check if the employee has a schedule
+                                    if(employee.getEmployeeStatus()){
+                                    for (Schedule schedule : schedules) {
+                                        if (employee.getEmployeeID() == schedule.getEmployeeID()) {
+                                            hasSchedule = true; // Employee has a schedule
+                            %> 
+                                            <tr>
+                                                <td><%= employee.getEmployeeName() %></td>
+                                                <td><%= schedule.getOffDay() %></td>
+                                                <td><%= sdf.format(schedule.getStartShift()) %></td>
+                                                <td><%= sdf.format(schedule.getEndShift()) %></td>
+                                                <td>
+                                                    <form action="manage_schedule.do" method="post">
+                                                        <input type="hidden" name="employeeID" value="<%= employee.getEmployeeID() %>">
+                                                        <input type="hidden" name="action" value="viewSpecificSchedule">
+                                                        <button type="submit" class="view-button">View</button>
+                                                    </form>
+                                                </td>
+                                            </tr>
+                            <%
+                                        }
+                                    }
+
+                                    // If the employee does not have any schedule, display the message
+                                    if (!hasSchedule) {
+                            %>
+                                        <tr>
+                                            <td><%= employee.getEmployeeName() %></td>
+                                            <td colspan="3" style="text-align: center;">
+                                                Schedule is not available
+                                            </td>
+                                            <td>
+                                                <form action="manage_schedule.do" method="post">
+                                                    <input type="hidden" name="employeeID" value="<%= employee.getEmployeeID() %>">
+                                                    <input type="hidden" name="action" value="viewSpecificSchedule">
+                                                    <button type="submit" class="view-button">View</button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                            <%
+                                    }
+                                }
+                                }
+                            %>
                         </tbody>
                     </table>
                 </div>

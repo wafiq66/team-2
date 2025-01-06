@@ -4,23 +4,23 @@
  * and open the template in the editor.
  */
 package com.ems.dao;
-import com.ems.model.EmployeeSchedule;
+
 import com.ems.model.Employee;
 import com.ems.model.Attendance;
-import com.ems.model.Branch;
-import com.ems.model.Report;
+import java.time.LocalDate;
 /**
  *
  * @author user
  */
 public interface AttendanceDAO {
     
-    void recordInAttendance(EmployeeSchedule employeeSchedule);
-    void recordOutAttendance(Attendance attendance);
-    Attendance[] getAllAttendances(Employee employee);
-    Attendance[] getAllAttendancesByBranch(Branch branch);
-    Attendance[] getAllAttendancesByBranch(Branch branch,int month,int year);
-    Attendance[] getAllAttendancesByReport(Report report);
-    Attendance getLatestAttendance(Employee employee);
-    
+    void clockIn(Attendance attendance);
+    boolean clockInChecker(int scheduleID,LocalDate Date);
+    Attendance selectAttendanceByScheduleID(int scheduleID);
+    Attendance[] selectAllAttendance(int[] attendanceIDs);
+    Attendance[] selectAllAttendance(Employee employee);
+    Attendance[] selectAllAttendance(int year, int month, Employee employee);
+    Attendance[] selectAllAttendance(int year,int month);
+    Attendance[] selectAllAttendance(int year,int month, int branch);
+    Attendance updateAttendance(Attendance attendance);
 }

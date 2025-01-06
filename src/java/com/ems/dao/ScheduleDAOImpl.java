@@ -1,44 +1,184 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.ems.dao;
 
-import com.ems.connection.Connect;
 import com.ems.model.Employee;
 import com.ems.model.Schedule;
+import com.ems.model.Attendance;
+import com.ems.connection.Connect;
+import com.ems.dao.EmployeeDAO;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ScheduleDAOImpl implements ScheduleDAO {
+
     private Connection conn;
 
     public ScheduleDAOImpl() {
         this.conn = Connect.getConnection();
     }
-
     @Override
-    public Schedule getScheduleByID(int scheduleID) {
-        Schedule schedule = null;
-        String sql = "SELECT * FROM SCHEDULE WHERE SCHEDULEID = ?";
+    public Schedule getActiveScheduleByEmployeeID(int employeeID) {
+        Schedule schedule = null; // Initialize to null to indicate no schedule found
+        String sql = "SELECT * FROM active_schedule WHERE employeeid = ?"; // Query modified to filter by employeeID
 
         try (PreparedStatement statement = conn.prepareStatement(sql)) {
-            statement.setInt(1, scheduleID);
+            statement.setInt(1, employeeID);
             try (ResultSet resultSet = statement.executeQuery()) {
-                if (resultSet.next()) {
+                if (resultSet.next()) { // Check if there is at least one result
                     schedule = new Schedule();
-                    schedule.setScheduleID(resultSet.getInt("SCHEDULEID"));
-                    schedule.setScheduleDate(resultSet.getDate("SCHEDULEDATE") != null ? resultSet.getDate("SCHEDULEDATE").toString() : null);
-                    schedule.setStartShift(resultSet.getTime("STARTSHIFT") != null ? new SimpleDateFormat("HH:mm:ss").format(resultSet.getTime("STARTSHIFT")) : null);
-                    schedule.setEndShift(resultSet.getTime("ENDSHIFT") != null ? new SimpleDateFormat("HH:mm:ss").format(resultSet.getTime("ENDSHIFT")) : null);
+                    schedule.setScheduleID(resultSet.getInt("scheduleid"));
+                    schedule.setStartShift(resultSet.getTimestamp("startshift"));
+                    schedule.setEndShift(resultSet.getTimestamp("endshift"));
+                    schedule.setOffDay(resultSet.getDate("offday")); // Assuming offday is a Date
+                    schedule.setDateBegin(resultSet.getDate("datebegin")); // Assuming datebegin is a Date
+                    schedule.setDateEnd(resultSet.getDate("dateend")); // Corrected to use dateend
+                    schedule.setEmployeeID(resultSet.getInt("employeeid")); // Assuming employeeid is relevant
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace(); // Replace with logging framework in production
+            throw new RuntimeException("Error retrieving active schedule by employee ID: " + e.getMessage(), e);
+        }
+
+        return schedule; // Return the found schedule or null if not found
+    }
+    @Override
+    public Schedule getFutureScheduleByEmployeeID(int employeeID) {
+        Schedule schedule = null; // Initialize to null to indicate no schedule found
+        String sql = "SELECT * FROM future_schedule WHERE employeeid = ?"; // Query modified to filter by employeeID
+
+        try (PreparedStatement statement = conn.prepareStatement(sql)) {
+            statement.setInt(1, employeeID);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) { // Check if there is at least one result
+                    schedule = new Schedule();
+                    schedule.setScheduleID(resultSet.getInt("scheduleid"));
+                    schedule.setStartShift(resultSet.getTimestamp("startshift"));
+                    schedule.setEndShift(resultSet.getTimestamp("endshift"));
+                    schedule.setOffDay(resultSet.getDate("offday")); // Assuming offday is a Date
+                    schedule.setDateBegin(resultSet.getDate("datebegin")); // Assuming datebegin is a Date
+                    schedule.setDateEnd(resultSet.getDate("dateend")); // Corrected to use dateend
+                    schedule.setEmployeeID(resultSet.getInt("employeeid")); // Assuming employeeid is relevant
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace(); // Replace with logging framework in production
+            throw new RuntimeException("Error retrieving active schedule by employee ID: " + e.getMessage(), e);
+        }
+
+        return schedule; // Return the found schedule or null if not found
+    }
+    @Override
+    public boolean getLockedScheduleStatus(int scheduleID) {
+        boolean isLocked = false; // Initialize to false
+        String sql = "SELECT * FROM working WHERE scheduleid = ?"; // SQL query to find rows in the working view
+
+        try (PreparedStatement statement = conn.prepareStatement(sql)) {
+            statement.setInt(1, scheduleID); // Set the scheduleID in the query
+            try (ResultSet resultSet = statement.executeQuery()) {
+                // Check if any rows are returned
+                if (resultSet.next()) { // If there is at least one row
+                    isLocked = true; // Set isLocked to true
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace(); // Replace with logging framework in production
+            throw new RuntimeException("Error retrieving locked schedule status: " + e.getMessage(), e);
+        }
+
+        return isLocked; // Return the locked status
+    }
+    
+    @Override
+    public void insertSchedule(Schedule schedule) {
+        String sql = "INSERT INTO schedule (startshift, endshift, offday, datebegin, dateend, employeeid) VALUES (?, ?, ?, ?, ?, ?)"; // SQL query to insert the schedule
+
+        try (PreparedStatement statement = conn.prepareStatement(sql)) {
+            // Set the parameters for the insert
+            statement.setTimestamp(1, schedule.getStartShift());
+            statement.setTimestamp(2, schedule.getEndShift());
+            statement.setDate(3, schedule.getOffDay()); // Assuming offday is a Date
+            statement.setDate(4, schedule.getDateBegin()); // Assuming datebegin is the schedule date
+            statement.setDate(5, schedule.getDateEnd()); // Assuming dateend is the schedule date
+            statement.setInt(6, schedule.getEmployeeID()); // Set the employee ID
+
+            statement.executeUpdate(); // Execute the insert statement
+        } catch (SQLException e) {
+            e.printStackTrace(); // Replace with logging framework in production
+            throw new RuntimeException("Error inserting schedule: " + e.getMessage(), e);
+        }
+    }
+    @Override
+    public void updateSchedule(Schedule schedule) {
+        String sql = "UPDATE schedule SET startshift = ?, endshift = ?, offday = ?, datebegin = ?, dateend = ? WHERE scheduleid = ?"; // SQL query to update the schedule
+
+        try (PreparedStatement statement = conn.prepareStatement(sql)) {
+            // Set the parameters for the update
+            statement.setTimestamp(1, schedule.getStartShift());
+            statement.setTimestamp(2, schedule.getEndShift());
+            statement.setDate(3, schedule.getOffDay()); // Assuming offday is a Date
+            statement.setDate(4, schedule.getDateBegin()); // Assuming datebegin is the schedule date
+            statement.setDate(5, schedule.getDateEnd()); // Assuming employeeid is relevant
+            statement.setInt(6, schedule.getScheduleID()); // Set the scheduleID for the WHERE clause
+
+            statement.executeUpdate(); // Execute the update statement
+        } catch (SQLException e) {
+            e.printStackTrace(); // Replace with logging framework in production
+            throw new RuntimeException("Error updating schedule: " + e.getMessage(), e);
+        }
+    }
+    
+    @Override
+    public Schedule[] getAllScheduleByEmployeeID(int employeeID) {
+        ArrayList<Schedule> scheduleList = new ArrayList<>();
+        String sql = "SELECT * FROM schedule WHERE employeeid = ?"; // Adjust the SQL query
+
+        try (PreparedStatement statement = conn.prepareStatement(sql)) {
+            statement.setInt(1, employeeID); // Set the employeeID parameter
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    Schedule schedule = new Schedule();
+                    schedule.setScheduleID(resultSet.getInt("scheduleid"));
+                    schedule.setStartShift(resultSet.getTimestamp("startshift"));
+                    schedule.setEndShift(resultSet.getTimestamp("endshift"));
+                    schedule.setOffDay(resultSet.getDate("offday")); // Assuming offday is a Date
+                    schedule.setDateBegin(resultSet.getDate("datebegin")); // Assuming datebegin is the schedule date
+                    schedule.setDateEnd(resultSet.getDate("dateend")); // Corrected to dateend
+                    schedule.setEmployeeID(resultSet.getInt("employeeid")); // Assuming employeeid is relevant
+                    scheduleList.add(schedule);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace(); // Replace with logging framework in production
+            throw new RuntimeException("Error retrieving schedules by employee ID: " + e.getMessage(), e);
+        }
+
+        return scheduleList.toArray(new Schedule[0]);
+    }
+    
+    @Override
+    public Schedule getScheduleByID(int scheduleID) {
+        Schedule schedule = null; // Initialize schedule to null
+        String sql = "SELECT * FROM schedule WHERE scheduleid = ?"; // SQL query to find the schedule by ID
+
+        try (PreparedStatement statement = conn.prepareStatement(sql)) {
+            statement.setInt(1, scheduleID); // Set the scheduleID in the query
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) { // Check if a result is returned
+                    schedule = new Schedule(); // Create a new Schedule object
+                    schedule.setScheduleID(resultSet.getInt("scheduleid"));
+                    schedule.setStartShift(resultSet.getTimestamp("startshift"));
+                    schedule.setEndShift(resultSet.getTimestamp("endshift"));
+                    schedule.setOffDay(resultSet.getDate("offday")); // Assuming offday is a Date
+                    schedule.setDateBegin(resultSet.getDate("datebegin")); // Assuming datebegin is the schedule date
+                    schedule.setDateEnd(resultSet.getDate("dateend")); // Assuming dateend is the end date
+                    schedule.setEmployeeID(resultSet.getInt("employeeid")); // Assuming employeeid is relevant
                 }
             }
         } catch (SQLException e) {
@@ -46,140 +186,36 @@ public class ScheduleDAOImpl implements ScheduleDAO {
             throw new RuntimeException("Error retrieving schedule by ID: " + e.getMessage(), e);
         }
 
-        return schedule;
+        return schedule; // Return the retrieved Schedule object or null if not found
     }
-
+    
     @Override
-    public int createSchedule(Schedule schedule) {
-        String sqlInsert = "INSERT INTO SCHEDULE (SCHEDULEDATE, STARTSHIFT, ENDSHIFT) VALUES (?, ?, ?)";
-        String sqlSelect = "SELECT SCHEDULEID FROM SCHEDULE WHERE SCHEDULEDATE = ? AND STARTSHIFT = ? AND ENDSHIFT = ?";
-
-        try {
-            // Insert the new schedule
-            try (PreparedStatement insertStatement = conn.prepareStatement(sqlInsert)) {
-                insertStatement.setDate(1, java.sql.Date.valueOf(schedule.getScheduleDate()));
-                insertStatement.setTime(2, java.sql.Time.valueOf(schedule.getStartShift()));
-                insertStatement.setTime(3, java.sql.Time.valueOf(schedule.getEndShift()));
-                insertStatement.executeUpdate();
-            }
-
-            // Select the generated ID
-            try (PreparedStatement selectStatement = conn.prepareStatement(sqlSelect)) {
-                selectStatement.setDate(1, java.sql.Date.valueOf(schedule.getScheduleDate()));
-                selectStatement.setTime(2, java.sql.Time.valueOf(schedule.getStartShift()));
-                selectStatement.setTime(3, java.sql.Time.valueOf(schedule.getEndShift()));
-
-                try (ResultSet resultSet = selectStatement.executeQuery()) {
-                    if (resultSet.next()) {
-                        return resultSet.getInt("SCHEDULEID");
-                    } else {
-                        throw new RuntimeException("Error creating schedule: no ID found");
-                    }
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace(); // Replace with logging framework in production
-            throw new RuntimeException("Error creating schedule: " + e.getMessage(), e);
-        }
-    }
-
-
-
-    @Override
-    public void updateSchedule(Schedule schedule) {
-        String sql = "UPDATE SCHEDULE SET SCHEDULEDATE = ?, STARTSHIFT = ?, ENDSHIFT = ? WHERE SCHEDULEID = ?";
-
-        try (PreparedStatement statement = conn.prepareStatement(sql)) {
-            statement.setDate(1, java.sql.Date.valueOf(schedule.getScheduleDate()));
-            statement.setTime(2, java.sql.Time.valueOf(schedule.getStartShift()));
-            statement.setTime(3, java.sql.Time.valueOf(schedule.getEndShift()));
-            statement.setInt(4, schedule.getScheduleID());
-            statement.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace(); // Replace with logging framework in production
-            throw new RuntimeException("Error updating schedule: " + e.getMessage(), e);
-        }
-    }
-
-    @Override
-    public void deleteSchedule(Schedule schedule) {
-        String sql = "DELETE FROM SCHEDULE WHERE SCHEDULEID = ?";
-
-        try (PreparedStatement statement = conn.prepareStatement(sql)) {
-            statement.setInt(1, schedule.getScheduleID());
-            statement.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace(); // Replace with logging framework in production
-            throw new RuntimeException("Error deleting schedule: " + e.getMessage(), e);
-        }
-    }
-
-    @Override
-    public Schedule fetchLatestSchedule(Employee employee) {
-        Schedule schedule = null;
-        String sql = "SELECT S.* " +
-                     "FROM EMPLOYEESCHEDULE ES " +
-                     "JOIN SCHEDULE S ON (ES.SCHEDULEID = S.SCHEDULEID) " +
-                     "WHERE ES.SCHEDULEACTIVATIONSTATUS = 1 " +
-                     "AND ES.EMPLOYEEID = ? " +
-                     "AND TRUNC(S.SCHEDULEDATE) <= TRUNC(SYSDATE) " + // Ensures schedule date is today or in the future
-                     "ORDER BY S.SCHEDULEDATE DESC";
-
-        sql = "SELECT * FROM (" + sql + ") WHERE ROWNUM <= 1";
-
-        try (PreparedStatement statement = conn.prepareStatement(sql)) {
-            statement.setInt(1, employee.getEmployeeID());
-            try (ResultSet resultSet = statement.executeQuery()) {
-                if (resultSet.next()) {
-                    schedule = new Schedule();
-                    schedule.setScheduleID(resultSet.getInt("SCHEDULEID"));
-                    schedule.setScheduleDate(resultSet.getDate("SCHEDULEDATE") != null ? resultSet.getDate("SCHEDULEDATE").toString() : "none");
-                    schedule.setStartShift(resultSet.getTime("STARTSHIFT") != null ? new SimpleDateFormat("HH:mm:ss").format(resultSet.getTime("STARTSHIFT")) : "none");
-                    schedule.setEndShift(resultSet.getTime("ENDSHIFT") != null ? new SimpleDateFormat("HH:mm:ss").format(resultSet.getTime("ENDSHIFT")) : "none");
-                } else {
-                    schedule = new Schedule();
-                    schedule.setScheduleID(0);
-                    schedule.setScheduleDate("none");
-                    schedule.setStartShift("none");
-                    schedule.setEndShift("none");
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace(); // Replace with logging framework in production
-            throw new RuntimeException("Error fetching latest schedule for employee: " + e.getMessage(), e);
-        }
-
-        return schedule;
-}
-
-
-
-    @Override
-    public Schedule[] getAllScheduleByBranch(int branchID) {
-        List<Schedule> scheduleList = new ArrayList<>();
-        String sql = "SELECT DISTINCT S.* " +
-                     "FROM SCHEDULE S " +
-                     "JOIN EMPLOYEESCHEDULE ES ON S.SCHEDULEID = ES.SCHEDULEID " +
-                     "JOIN EMPLOYEE E ON ES.EMPLOYEEID = E.EMPLOYEEID " +
-                     "WHERE E.BRANCHID = ? AND E.EMPLOYEESTATUS = 1";
+    public Schedule[] getAllActiveScheduleByBranchID(int branchID) {
+        ArrayList<Schedule> scheduleList = new ArrayList<>();
+        String sql = "SELECT * FROM active_schedule WHERE branchid = ?";
 
         try (PreparedStatement statement = conn.prepareStatement(sql)) {
             statement.setInt(1, branchID);
             try (ResultSet resultSet = statement.executeQuery()) {
                 while (resultSet.next()) {
                     Schedule schedule = new Schedule();
-                    schedule.setScheduleID(resultSet.getInt("SCHEDULEID"));
-                    schedule.setScheduleDate(resultSet.getDate("SCHEDULEDATE") != null ? resultSet.getDate("SCHEDULEDATE").toString() : null);
-                    schedule.setStartShift(resultSet.getTime("STARTSHIFT") != null ? new SimpleDateFormat("HH:mm:ss").format(resultSet.getTime("STARTSHIFT")) : null);
-                    schedule.setEndShift(resultSet.getTime("ENDSHIFT") != null ? new SimpleDateFormat("HH:mm:ss").format(resultSet.getTime("ENDSHIFT")) : null);
+                    schedule.setScheduleID(resultSet.getInt("scheduleid"));
+                    schedule.setStartShift(resultSet.getTimestamp("startshift"));
+                    schedule.setEndShift(resultSet.getTimestamp("endshift"));
+                    schedule.setOffDay(resultSet.getDate("offday")); // Assuming offday is a String
+                    schedule.setDateBegin(resultSet.getDate("datebegin")); // Assuming datebegin is the schedule date
+                    schedule.setDateEnd(resultSet.getDate("datebegin")); // Assuming datebegin is the schedule date
+                    schedule.setEmployeeID(resultSet.getInt("employeeid")); // Assuming employeeid is relevant
                     scheduleList.add(schedule);
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace(); // Replace with logging framework in production
-            throw new RuntimeException("Error retrieving schedules by branch ID: " + e.getMessage(), e);
+            throw new RuntimeException("Error retrieving active schedules by branch ID: " + e.getMessage(), e);
         }
 
         return scheduleList.toArray(new Schedule[0]);
     }
+    
+    
 }
